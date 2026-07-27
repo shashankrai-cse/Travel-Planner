@@ -1,11 +1,13 @@
 {
   "name": "wayfarer-server",
   "version": "1.0.0",
+  "type": "module",
   "description": "Server for the Wayfarer travel platform.",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon src/server.js",
+    "seed": "node src/seed.js"
   },
   "dependencies": {
     "@clerk/express": "^2.0.3",
