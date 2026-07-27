@@ -1,7 +1,14 @@
 # Node dependencies
 node_modules/
 **/node_modules/
+context.md
+design.md
+requirements.md
+gemini.md
+structure.md
 
+mongodb_data/
+db_data/
 # Environment files
 .env
 .env.local
@@ -50,11 +57,4 @@ Thumbs.db
 
 #files
 
-context.md
-design.md
-requirements.md
-gemini.md
-structure.md
 
-mongodb_data/
-db_data/
