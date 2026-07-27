@@ -13,7 +13,7 @@ import { setBookingPackage, setHotelSelection, setStep } from '../booking/bookin
 import PackageReviews from '../reviews/PackageReviews';
 
 const fallbackPackage = {
-  _id: 'p1',
+  _id: '6a66efe806db6b33a2ae1ee1',
   title: 'Amalfi Coastal Discovery',
   slug: 'amalfi-coastal-discovery',
   destination: { name: 'Amalfi Coast', country: 'Italy' },
@@ -37,7 +37,7 @@ const fallbackDays = [
 
 const fallbackHotels = [
   {
-    _id: 'h1',
+    _id: '6a66efe806db6b33a2ae1ee3',
     name: 'Villa Positano Resort',
     starRating: 5,
     roomTypes: [

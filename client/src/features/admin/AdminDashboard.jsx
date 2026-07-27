@@ -28,9 +28,10 @@ import {
 
 export const AdminDashboard = () => {
   const { user } = useSafeUser();
-  const currentRole = user?.publicMetadata?.role || 'vendor';
+  const currentRole = user?.publicMetadata?.role || 'traveler';
+  const isOwner = currentRole === 'vendor' || currentRole === 'owner';
 
-  const [activeTab, setActiveTab] = useState(currentRole === 'vendor' ? 'hotels' : 'destinations');
+  const [activeTab, setActiveTab] = useState(isOwner ? 'hotels' : 'destinations');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // RTK Query Hooks
@@ -55,11 +56,7 @@ export const AdminDashboard = () => {
   const destinations = destRes?.data || [];
   const packages = packRes?.data || [];
   const hotels = hotelRes?.data || [];
-  const usersList = usersRes?.data || [
-    { _id: 'u1', name: 'Demo Traveler', email: 'traveler@example.com', role: 'traveler' },
-    { _id: 'u2', name: 'Demo Hotel Owner', email: 'owner@example.com', role: 'vendor' },
-    { _id: 'u3', name: 'Demo System Admin', email: 'admin@example.com', role: 'admin' },
-  ];
+  const usersList = usersRes?.data || [];
 
   // Form states
   const [destForm, setDestForm] = useState({ name: '', country: '', description: '', images: '' });
@@ -385,7 +382,7 @@ export const AdminDashboard = () => {
                           variant={
                             u.role === 'admin'
                               ? 'gold'
-                              : u.role === 'vendor'
+                              : u.role === 'vendor' || u.role === 'owner'
                               ? 'horizon'
                               : 'sunset'
                           }

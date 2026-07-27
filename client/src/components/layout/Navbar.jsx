@@ -20,8 +20,11 @@ export const Navbar = () => {
   const roleLabels = {
     traveler: { label: 'Traveler', variant: 'sunset' },
     vendor: { label: 'Hotel & Tour Owner', variant: 'horizon' },
+    owner: { label: 'Hotel & Tour Owner', variant: 'horizon' },
     admin: { label: 'Admin', variant: 'gold' },
   };
+
+  const isOwner = role === 'vendor' || role === 'owner';
 
   return (
     <>
@@ -44,7 +47,7 @@ export const Navbar = () => {
               My Bookings
             </Link>
 
-            {role === 'vendor' && (
+            {isOwner && (
               <Link to="/admin" className="hover:text-horizon-600 font-semibold transition-colors">
                 🏨 Owner Portal
               </Link>
@@ -131,7 +134,7 @@ export const Navbar = () => {
             >
               My Bookings
             </Link>
-            {role === 'vendor' && (
+            {isOwner && (
               <Link
                 to="/admin"
                 onClick={() => setMobileMenuOpen(false)}

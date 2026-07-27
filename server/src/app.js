@@ -28,7 +28,13 @@ app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 
 // Clerk authentication middleware
-app.use(clerkMiddleware());
+app.use(
+  clerkMiddleware({
+    publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
+    secretKey: process.env.CLERK_SECRET_KEY,
+  })
+);
+
 
 // Mount API routes
 app.use("/api/webhooks", webhookRoutes);

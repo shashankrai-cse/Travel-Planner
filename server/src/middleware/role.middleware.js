@@ -7,11 +7,17 @@ export const requireRole = (...allowedRoles) => {
     }
 
     const userRole = req.user.role || "traveler";
-    if (!allowedRoles.includes(userRole)) {
+
+    // Normalize vendor and owner as equivalent roles
+    const effectiveRoles = allowedRoles.flatMap((r) =>
+      r === "vendor" || r === "owner" ? ["vendor", "owner"] : [r]
+    );
+
+    if (!effectiveRoles.includes(userRole)) {
       return next(
         new ApiError(
           403,
-          `Access denied. Requires one of roles: [${allowedRoles.join(", ")}]`
+          `Access denied. Required role: [${allowedRoles.join(", ")}]. Current role: [${userRole}]`
         )
       );
     }

@@ -47,3 +47,11 @@ Thumbs.db
 .vite/
 **/ .vite/
 .cache/
+
+#files
+
+context.md
+design.md
+requirements.md
+gemini.md
+structure.md

@@ -6,6 +6,7 @@ import Button from '../../../components/ui/Button';
 import Badge from '../../../components/ui/Badge';
 import { useCreateBookingMutation } from '../../../app/api/bookingsApi';
 import { useConfirmPaymentMutation } from '../../../app/api/paymentsApi';
+import { useGetPackagesQuery } from '../../../app/api/packagesApi';
 import { resetBooking } from '../bookingSlice';
 
 export const PaymentStep = () => {
@@ -13,6 +14,9 @@ export const PaymentStep = () => {
   const navigate = useNavigate();
   const booking = useSelector((state) => state.booking);
   const pkg = booking.selectedPackage;
+
+  const { data: packagesRes } = useGetPackagesQuery();
+  const activePackage = pkg || packagesRes?.data?.[0];
 
   const [createBooking, { isLoading: isBookingLoading }] = useCreateBookingMutation();
   const [confirmPayment, { isLoading: isPaymentLoading }] = useConfirmPaymentMutation();
@@ -24,14 +28,25 @@ export const PaymentStep = () => {
 
   const handlePayAndConfirm = async () => {
     try {
-      // 1. Create booking record on backend
+      const packageId = activePackage?._id || activePackage?.slug || 'amalfi-coastal-discovery';
+
+      const validTravelers = (booking.travelers && booking.travelers.length > 0)
+        ? booking.travelers.map((t, idx) => ({
+            name: t.name && t.name.trim() ? t.name.trim() : `Traveler ${idx + 1}`,
+            age: Number(t.age) > 0 ? Number(t.age) : 25,
+          }))
+        : [{ name: 'Primary Guest', age: 28 }];
+
+      const startDateStr = booking.startDate || new Date(Date.now() + 86400000 * 14).toISOString().split('T')[0];
+      const endDateStr = booking.endDate || new Date(Date.now() + 86400000 * 21).toISOString().split('T')[0];
+
       const bookingPayload = {
-        package: pkg?._id || '64f1a2b3c4d5e6f7a8b9c0d1',
+        package: packageId,
         hotel: booking.selectedHotel || undefined,
         roomType: booking.selectedRoomType || undefined,
-        startDate: booking.startDate || '2026-09-01',
-        endDate: booking.endDate || '2026-09-08',
-        travelers: booking.travelers.length ? booking.travelers : [{ name: 'Guest', age: 25 }],
+        startDate: startDateStr,
+        endDate: endDateStr,
+        travelers: validTravelers,
         addOns: booking.addOns || [],
       };
 
@@ -49,8 +64,8 @@ export const PaymentStep = () => {
 
       setIsSuccess(true);
     } catch (err) {
-      // Graceful fallback for mock mode
-      setIsSuccess(true);
+      console.error("Booking/Payment failed:", err);
+      alert(err?.data?.message || err?.message || 'Failed to complete booking.');
     }
   };
 
@@ -60,7 +75,7 @@ export const PaymentStep = () => {
         <Badge variant="sunset" className="mx-auto">RESERVATION CONFIRMED</Badge>
         <h2 className="font-display text-display-xl text-white">Pack Your Bags!</h2>
         <p className="font-body text-body text-mist-300 max-w-md mx-auto">
-          Your journey for <strong className="text-white">{pkg?.title || 'Amalfi Coastal Discovery'}</strong> is officially confirmed. A confirmation receipt has been sent to your email.
+          Your journey for <strong className="text-white">{activePackage?.title || 'Amalfi Coastal Discovery'}</strong> is officially confirmed. A confirmation receipt has been sent to your email.
         </p>
         <div className="pt-4 flex justify-center space-x-4">
           <Button
@@ -90,7 +105,9 @@ export const PaymentStep = () => {
       <div className="glass p-6 rounded-2xl space-y-4 max-w-md mx-auto">
         <div className="flex justify-between items-center pb-3 border-b border-white/10">
           <span className="font-mono text-xs text-mist-300">Total Charged</span>
-          <span className="font-display text-display-md text-gold-400 font-bold">${booking.priceBreakdown.total}</span>
+          <span className="font-display text-display-md text-gold-400 font-bold">
+            ${booking.priceBreakdown.total || activePackage?.basePrice || 1499}
+          </span>
         </div>
 
         <div className="space-y-3 font-body text-sm">
@@ -136,7 +153,9 @@ export const PaymentStep = () => {
           disabled={isBookingLoading || isPaymentLoading}
           onClick={handlePayAndConfirm}
         >
-          {isBookingLoading || isPaymentLoading ? 'Processing...' : `Pay $${booking.priceBreakdown.total} & Confirm Booking`}
+          {isBookingLoading || isPaymentLoading
+            ? 'Processing...'
+            : `Pay $${booking.priceBreakdown.total || activePackage?.basePrice || 1499} & Confirm Booking`}
         </Button>
       </div>
     </GlassCard>

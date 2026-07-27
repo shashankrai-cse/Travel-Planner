@@ -1,13 +1,14 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import { Destination } from './models/Destination.js';
-import { TourPackage } from './models/TourPackage.js';
-import { Hotel } from './models/Hotel.js';
-import { Itinerary } from './models/Itinerary.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/wayfarer';
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
+const MONGODB_URI = process.env.MONGODB_URI;
 
 const sampleDestinations = [
   {
@@ -55,8 +56,15 @@ const sampleDestinations = [
 async function seedDatabase() {
   try {
     console.log('Connecting to MongoDB for seeding...');
-    await mongoose.connect(MONGODB_URI);
-    console.log('Connected!');
+    try {
+      await mongoose.connect(MONGODB_URI, { serverSelectionTimeoutMS: 5000 });
+      console.log('Connected to Primary MongoDB!');
+    } catch (atlasErr) {
+      console.warn(`Primary connection failed (${atlasErr.message}). Falling back to local MongoDB...`);
+      await mongoose.connect('mongodb://127.0.0.1:27017/wayfarer', { serverSelectionTimeoutMS: 5000 });
+      console.log('Connected to Local MongoDB!');
+    }
+
 
     // Clear existing collections
     await Destination.deleteMany({});

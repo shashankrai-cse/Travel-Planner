@@ -9,7 +9,7 @@ import { useGetMyBookingsQuery, useCancelBookingMutation } from '../../app/api/b
 
 const fallbackBookings = [
   {
-    _id: 'b1',
+    _id: '6a66efe806db6b33a2ae1ee2',
     package: {
       title: 'Amalfi Coastal Discovery',
       images: ['https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80'],
@@ -29,7 +29,7 @@ export const UserDashboard = () => {
   const { data, isLoading } = useGetMyBookingsQuery();
   const [cancelBooking] = useCancelBookingMutation();
 
-  const bookings = data?.data && data.data.length > 0 ? data.data : fallbackBookings;
+  const bookings = data?.data !== undefined ? data.data : (isLoading ? [] : fallbackBookings);
 
   const handleCancel = async (id) => {
     if (confirm('Are you sure you want to cancel this booking?')) {

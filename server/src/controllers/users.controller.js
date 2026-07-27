@@ -12,7 +12,6 @@ const getAdminEmails = () => {
 export const getCurrentUser = asyncHandler(async (req, res) => {
   let user = req.user;
 
-  // If user doesn't exist in Mongo yet but auth is valid (e.g. initial setup before webhook)
   if (!user && req.auth?.userId) {
     user = await User.findOne({ clerkId: req.auth.userId });
     if (!user) {
@@ -68,9 +67,10 @@ export const updateCurrentUser = asyncHandler(async (req, res) => {
 
 export const updateSelfRole = asyncHandler(async (req, res) => {
   const { role } = req.body;
+  const normalizedRole = role === "owner" ? "vendor" : role;
 
-  if (!["traveler", "vendor"].includes(role)) {
-    throw new ApiError(400, "Invalid role. Select either 'traveler' (User) or 'vendor' (Owner).");
+  if (!["traveler", "vendor", "owner"].includes(role)) {
+    throw new ApiError(400, "Invalid role. Select either 'traveler' (User) or 'vendor'/'owner' (Owner).");
   }
 
   let user = req.user;
@@ -82,14 +82,12 @@ export const updateSelfRole = asyncHandler(async (req, res) => {
     throw new ApiError(404, "User profile not found");
   }
 
-  // Keep admin if email matches admin list
   const isAdmin = getAdminEmails().includes(user.email.toLowerCase());
-  const finalRole = isAdmin ? 'admin' : role;
+  const finalRole = isAdmin ? 'admin' : normalizedRole;
 
   user.role = finalRole;
   await user.save();
 
-  // Sync to Clerk publicMetadata
   try {
     if (user.clerkId && process.env.CLERK_SECRET_KEY) {
       await clerkClient.users.updateUserMetadata(user.clerkId, {

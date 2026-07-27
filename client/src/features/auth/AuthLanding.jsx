@@ -83,7 +83,15 @@ export const AuthLanding = ({ onDemoLogin }) => {
                     <SignUp routing="hash" />
                   )}
                 </div>
+
+                <div className="pt-4 border-t border-white/10 text-center space-y-2">
+                  <span className="font-mono text-caption text-mist-300 block">Want to preview as guest?</span>
+                  <Button variant="secondary" size="sm" className="w-full" onClick={onDemoLogin}>
+                    ⚡ Explore Platform as Guest →
+                  </Button>
+                </div>
               </div>
+
             ) : (
               <div className="text-center space-y-6 py-4">
                 <Badge variant="sunset" className="mx-auto">DEMO MODE ACTIVE</Badge>

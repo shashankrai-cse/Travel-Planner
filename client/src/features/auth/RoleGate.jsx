@@ -13,9 +13,14 @@ export const RoleGate = ({ allowedRoles = [], children, fallback = null }) => {
     );
   }
 
-  const role = user?.publicMetadata?.role || 'admin';
+  const role = user?.publicMetadata?.role || 'traveler';
 
-  if (!allowedRoles.includes(role)) {
+  // Normalize vendor and owner roles
+  const effectiveAllowed = allowedRoles.flatMap((r) =>
+    r === 'vendor' || r === 'owner' ? ['vendor', 'owner'] : [r]
+  );
+
+  if (!effectiveAllowed.includes(role)) {
     if (fallback) return fallback;
     return <Navigate to="/" replace />;
   }
